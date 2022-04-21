@@ -1,0 +1,12 @@
+{
+    "debug": true,
+    "name": "Alea",
+    "prefix": "a.",
+    "colors": {
+        "primary": "#cdd28a",
+        "error": "#f44336"
+    },
+    "devs": [
+        "196245554903252992"
+    ]
+}
