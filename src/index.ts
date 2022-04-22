@@ -1,7 +1,10 @@
 require('dotenv').config();
-require('./util/consolelog').config();
 
 import * as config from './config.json';
+
+if (!config.debug) {
+    require('./util/consolelog').config();
+}
 
 import * as fs from 'fs';
 import * as Discord from 'discord.js';
@@ -35,7 +38,8 @@ async function main() {
         intents: [
             Discord.Intents.FLAGS.GUILDS,
             Discord.Intents.FLAGS.GUILD_MESSAGES,
-            Discord.Intents.FLAGS.GUILD_MEMBERS
+            Discord.Intents.FLAGS.GUILD_MEMBERS,
+            Discord.Intents.FLAGS.GUILD_VOICE_STATES
         ]
     });
 
