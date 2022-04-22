@@ -14,7 +14,7 @@ const command: Command = {
                 `✨ Misc
                 ${Handler.commands.filter(x => x.category === 'misc').map(x => `\`${x.name}\``).join(', ')}
                 🎵 Music
-                \`music <${MusicPlayer.subcommands.map(x => x.name).join('|')}>\`
+                \`music <${MusicPlayer.subcommands.map(x => x.name).join(' | ')}> [args...]\`
                 🔧 Administration
                 ${Handler.commands.filter(x => x.category === 'admin').map(x => `\`${x.name}\``).join(', ')}
                 `, {
