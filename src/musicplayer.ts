@@ -305,6 +305,17 @@ class MusicPlayer {
             }
         },
         {
+            name: 'shuffle',
+            execute: (message: Discord.Message, args: string[]) => {
+                if (!message.member?.voice.channel) return Util.reply(message, 'You need to be in a voice channel to use this command!', { color: config.colors.error });
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+                if (connection.queue.length <= 0) return Util.reply(message, 'There is nothing in the queue!', { color: config.colors.error });
+                connection.queue = Util.shuffle(connection.queue);
+                Util.reply(message, 'Shuffled the queue!');
+            }
+        },
+        {
             name: 'serverprefix',
             execute: async (message: Discord.Message, args: string[]) => {
                 if (!message.member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR)) return;
