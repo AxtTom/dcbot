@@ -316,6 +316,18 @@ class MusicPlayer {
             }
         },
         {
+            name: 'loopshuffleskip',
+            aliases: ['lss'],
+            execute: (message: Discord.Message, args: string[]) => {
+                if (!message.member?.voice.channel) return Util.reply(message, 'You need to be in a voice channel to use this command!', { color: config.colors.error });
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+                connection.loop = true;
+                this.subcommands.find(x => x.name == 'shuffle').execute(message, args);
+                this.subcommands.find(x => x.name == 'skip').execute(message, args);
+            }
+        },
+        {
             name: 'serverprefix',
             execute: async (message: Discord.Message, args: string[]) => {
                 if (!message.member.permissions.has(Discord.Permissions.FLAGS.ADMINISTRATOR)) return;
