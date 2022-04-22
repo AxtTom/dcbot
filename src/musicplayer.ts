@@ -33,7 +33,10 @@ const play = async (message: Discord.Message) => {
     if (connection.queue.length <= 0) return;
 
     const player = Voice.createAudioPlayer();
-    const stream = ytdl(connection.queue[0].url, { filter: 'audioonly' });
+    const stream = ytdl(connection.queue[0].url, { 
+        filter: 'audioonly',
+        quality: 'lowestaudio'
+    });
     const resource = Voice.createAudioResource(stream, { inlineVolume: true });
 
     resource.playStream.on('error', (err) => {
