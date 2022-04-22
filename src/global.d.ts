@@ -6,6 +6,7 @@ declare global {
 
     var users: EasyMongo;
     var guilds: EasyMongo;
+    var place: EasyMongo;
 }
 
 export {};

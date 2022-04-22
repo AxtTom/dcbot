@@ -1,7 +1,7 @@
 import * as Discord from 'discord.js';
 import * as config from '../config.json';
 import { Command } from '../command';
-import { Util } from '../util/util';
+import { Util } from '../util/util'; 
 
 const command: Command = {
     name: 'serverprefix',
@@ -16,9 +16,16 @@ const command: Command = {
             return true;
         }
         if (args.length == 1) {
-            global.guilds.set({ id: message.guild.id }, { prefix: args[0] }).then(() => {
-                Util.reply(message, `The server prefix has been set to \`${args[0]}\``);
-            });
+            if (args[0] == config.prefix) {
+                global.guilds.unset({ id: message.guild.id }, { prefix: null }).then(() => {
+                    Util.reply(message, `The server prefix has been removed`);
+                });
+            }
+            else {
+                global.guilds.set({ id: message.guild.id }, { prefix: args[0] }).then(() => {
+                    Util.reply(message, `The server prefix has been set to \`${args[0]}\``);
+                });
+            }
             return true;
         }
 

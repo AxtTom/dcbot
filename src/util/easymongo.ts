@@ -16,9 +16,20 @@ class EasyMongo {
                 this.collection.updateOne(filter, { $set: data });
             }
             else {
-                return this.collection.insertOne(data);
+                data.id = filter.id;
+                this.collection.insertOne(data);
             }
         });
+    }
+    public unset(filter: Mongo.Filter<Mongo.Document>, data: Mongo.Document) {
+        return this.collection.findOne(filter).then(doc => {
+            if (doc) {
+                this.collection.updateOne(filter, { $unset: data });
+            }
+        });
+    }
+    public remove(filter: Mongo.Filter<Mongo.Document>) {
+        return this.collection.deleteOne(filter);
     }
 }
 

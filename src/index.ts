@@ -8,6 +8,7 @@ import * as Discord from 'discord.js';
 import { MongoClient } from 'mongodb';
 import { Handler } from './command';
 import { EasyMongo } from './util/easymongo';
+import { MusicPlayer } from './musicplayer';
 
 const mongo = new MongoClient('mongodb://localhost:27017');
 
@@ -18,7 +19,10 @@ async function main() {
     const db = mongo.db('discord');
     global.users = new EasyMongo(db.collection('users'));
     global.guilds = new EasyMongo(db.collection('guilds'));
-
+    
+    const web = mongo.db('website');
+    global.place = new EasyMongo(web.collection('place'));
+    
     // Load commands
     for (const file of fs.readdirSync(`${__dirname}/commands`)) {
         if (!file.endsWith('.ts')) continue;
@@ -41,6 +45,12 @@ async function main() {
 
     global.client.on('messageCreate', async (message) => {
         Handler.handleMessage(message);
+
+        global.guilds.get({ id: message.guild.id }).then(guild => {
+            if (guild && guild.musicprefix && message.content.startsWith(guild.musicprefix)) {
+                MusicPlayer.handle(message, message.content.slice(guild.musicprefix.length).trim().split(/ +/));
+            }
+        });
     });
 
     console.log('Logging in...');

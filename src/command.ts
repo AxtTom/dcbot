@@ -4,6 +4,8 @@ import { Util } from './util/util';
 
 interface Command {
     name: string;
+    aliases?: string[];
+    category?: string;
     description?: string;
     usage?: string;
     permissions?: Discord.PermissionResolvable[];
@@ -45,7 +47,7 @@ class Handler {
         
         let args: string[] = message.content.slice(prefix.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
-        const command = Handler.commands.find(cmd => cmd.name === commandName);
+        const command = Handler.commands.find(cmd => cmd.name === commandName || (cmd.aliases && cmd.aliases.includes(commandName)));
         if (!command) return;
 
         if (command.permissions && !command.permissions.every(x => message.member.permissions.has(x))) {
