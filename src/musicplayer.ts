@@ -111,7 +111,10 @@ class MusicPlayer {
 
                 const songs = await this.getSong(args);
                 connection.queue = connection.queue.concat(songs);
-                if (songs.length == 1) {
+                if (songs.length <= 0) {
+                    Util.reply(message, 'No songs were found!', { color: config.colors.error });
+                }
+                else if (songs.length == 1) {
                     Util.reply(message, `Added [${songs[0].title}](${songs[0].url}).`);
                 }
                 else if (songs.length > 1) {
@@ -275,7 +278,7 @@ class MusicPlayer {
                     ]);
                 }
                 else {
-                    const queue = connection.queue.map((song, index) => `**Queue:**\n${index + 1}. [${song.title}](${song.url})`).join('\n');
+                    const queue = '**Queue:**\n' + connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.url})`).join('\n');
 
                     Util.send(message.channel, queue);
                 }
@@ -387,8 +390,31 @@ class MusicPlayer {
             else {
                 try {
                     const results = await ytsr(url.join(' '), { limit: 1, gl: 'DE', hl: 'de' });
-                    const song = results.items[0] as any;
-                    resolve([{ title: song.title, url: song.url }]);
+                    if (results.items[0].type == 'video') {
+                        const song = results.items[0];
+                        resolve([{ title: song.title, url: song.url }]);
+                    }
+                    else if (results.items[0].type == 'playlist') {
+                        if (ytpl.validateID(results.items[0].url)) {
+                            try {
+                                const playlist = await ytpl(results.items[0].url, { gl: 'DE' });
+                                const songs: Song[] = [];
+                                for (const song of playlist.items) {
+                                    songs.push({ title: song.title, url: song.url });
+                                }
+                                resolve(songs);
+                            } 
+                            catch (err) {
+                                reject(err);
+                            }
+                        }
+                        else {
+                            reject(new Error('Invalid playlist url!'));
+                        }
+                    }
+                    else {
+                        reject(new Error('Search found no video!'));
+                    }
                 } 
                 catch (err) {
                     reject(err);
