@@ -250,7 +250,7 @@ class MusicPlayer {
                 const connection = this.connections.get(message.guild.id);
                 if (!connection) return;
 
-                if (connection.queue.length <= 0) return;
+                if (connection.queue.length <= 0) return Util.reply(message, 'Queue is empty!', { color: config.colors.error });
 
                 if (connection.queue.length > 10) {
                     this.pages.set(message.author.id, 0);
@@ -349,6 +349,94 @@ class MusicPlayer {
                         Util.reply(message, `The server musicprefix has been set to \`${args[0]}\``);
                     });
                 }
+            }
+        },
+        {
+            name: 'savequeue',
+            aliases: ['save'],
+            execute: async (message: Discord.Message, args: string[]) => {
+                if (args.length <= 0) return Util.reply(message, 'You need to specify a name!', { color: config.colors.error });
+
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+
+                if (connection.queue.length <= 0) return Util.reply(message, 'There is nothing in the queue!', { color: config.colors.error });
+
+                global.users.get({ id: message.author.id }).then(user => {
+                    if (user) {
+                        if (!user.queues) user.queues = [];
+                        user.queues.push({ name: args[0], queue: connection.queue });
+                        global.users.set({ id: message.author.id }, user).then(() => {
+                            Util.reply(message, `Saved the queue!`);
+                        });
+                    }
+                    else {
+                        global.users.set({ id: message.author.id }, { queues: [{ name: args[0], queue: connection.queue }] }).then(() => {
+                            Util.reply(message, `Saved the queue!`);
+                        });
+                    }
+                });
+            }
+        },
+        {
+            name: 'loadqueue',
+            aliases: ['load'],
+            execute: async (message: Discord.Message, args: string[]) => {
+                if (args.length <= 0) return Util.reply(message, 'You need to specify a name!', { color: config.colors.error });
+
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+
+                global.users.get({ id: message.author.id }).then(user => {
+                    if (!user || !user.queues) return Util.reply(message, 'You have no queues!', { color: config.colors.error });
+                    const queue = user.queues.find(x => x.name == args[0]);
+                    if (!queue) return Util.reply(message, 'That queue does not exist!', { color: config.colors.error });
+                    connection.queue = queue.queue;
+                    Util.reply(message, 'Loaded the queue!');
+                });
+            }
+        },
+        {
+            name: 'removequeue',
+            execute: async (message: Discord.Message, args: string[]) => {
+                if (args.length <= 0) return Util.reply(message, 'You need to specify a name!', { color: config.colors.error });
+
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+
+                global.users.get({ id: message.author.id }).then(user => {
+                    if (!user || !user.queues) return Util.reply(message, 'You have no queues!', { color: config.colors.error });
+                    user.queues = user.queues.filter(x => x.name != args[0]);
+                    global.users.set({ id: message.author.id }, user);
+                    Util.reply(message, 'Removed the queue!');
+                });
+            }
+        },
+        {
+            name: 'listqueues',
+            execute: async (message: Discord.Message, args: string[]) => {
+                global.users.get({ id: message.author.id }).then(user => {
+                    if (!user || !user.queues) return Util.reply(message, 'You have no queues!', { color: config.colors.error });
+                    const queues = user.queues.map(x => `\`${x.name}\``).join(', ');
+                    Util.reply(message, `Your queues are: ${queues}`);
+                });
+            }
+        },
+        {
+            name: 'addqueue',
+            execute: async (message: Discord.Message, args: string[]) => {
+                if (args.length <= 0) return Util.reply(message, 'You need to specify a name!', { color: config.colors.error });
+
+                const connection = this.connections.get(message.guild.id);
+                if (!connection) return;
+
+                global.users.get({ id: message.author.id }).then(user => {
+                    if (!user || !user.queues) return Util.reply(message, 'You have no queues!', { color: config.colors.error });
+                    const queue = user.queues.find(x => x.name == args[0]);
+                    if (!queue) return Util.reply(message, 'That queue does not exist!', { color: config.colors.error });
+                    connection.queue = connection.queue.concat(queue.queue);
+                    Util.reply(message, 'Added the queue!');
+                });
             }
         }
     ];

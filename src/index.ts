@@ -58,7 +58,12 @@ async function main() {
     });
 
     console.log('Logging in...');
-    global.client.login(process.env.DISCORD_TOKEN);
+    if (!config.debug) {
+        global.client.login(process.env.DISCORD_TOKEN);
+    }
+    else {
+        global.client.login(process.env.TEST_DISCORD_TOKEN);
+    }
 
     // Catch all uncaught exceptions
     process.on('uncaughtException', (err) => {
