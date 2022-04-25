@@ -2,7 +2,7 @@ require('dotenv').config();
 
 import * as config from './config.json';
 
-if (!config.debug) {
+if (config.profile == 'release') {
     require('./util/consolelog').config();
 }
 
@@ -16,6 +16,7 @@ import { MusicPlayer } from './musicplayer';
 const mongo = new MongoClient('mongodb://localhost:27017');
 
 async function main() {
+    //#region Mongo Setup
     await mongo.connect();
     console.log('Connected to MongoDB');
 
@@ -25,15 +26,18 @@ async function main() {
     
     const web = mongo.db('website');
     global.place = new EasyMongo(web.collection('place'));
+    //#endregion
     
-    // Load commands
+    //#region Load commands
     for (const file of fs.readdirSync(`${__dirname}/commands`)) {
         if (!file.endsWith('.ts')) continue;
 
         Handler.register(require(`./commands/${file}`).command);
     }
     console.log(`Loaded ${Handler.commands.length} command${Handler.commands.length > 1 ? 's' : ''}.`);
+    //#endregion
 
+    //#region Discord Setup
     global.client = new Discord.Client({
         intents: [
             Discord.Intents.FLAGS.GUILDS,
@@ -51,19 +55,17 @@ async function main() {
         Handler.handleMessage(message);
 
         global.guilds.get({ id: message.guild.id }).then(guild => {
+            console.log(guild);
+            console.log(message.content.startsWith(guild.musicprefix));
             if (guild && guild.musicprefix && message.content.startsWith(guild.musicprefix)) {
                 MusicPlayer.handle(message, message.content.slice(guild.musicprefix.length).trim().split(/ +/));
             }
         });
     });
+    //#endregion
 
     console.log('Logging in...');
-    if (!config.debug) {
-        global.client.login(process.env.DISCORD_TOKEN);
-    }
-    else {
-        global.client.login(process.env.TEST_DISCORD_TOKEN);
-    }
+    global.client.login(process.env[config.profiles[config.profile].env]);
 
     // Catch all uncaught exceptions
     process.on('uncaughtException', (err) => {

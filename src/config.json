@@ -1,7 +1,17 @@
 {
-    "debug": true,
-    "name": "Alea",
-    "prefix": "a.",
+    "profile": "release",
+    "profiles": {
+        "release": {
+            "name": "Alea",
+            "prefix": "a.",
+            "env": "DISCORD_TOKEN"
+        },
+        "debug": {
+            "name": "TestBot",
+            "prefix": "t.",
+            "env": "TEST_DISCORD_TOKEN"
+        }
+    },
     "colors": {
         "primary": "#cdd28a",
         "error": "#f44336"

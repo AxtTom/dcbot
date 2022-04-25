@@ -16,7 +16,7 @@ const command: Command = {
             return true;
         }
         if (args.length == 1) {
-            if (args[0] == config.prefix) {
+            if (args[0] == config.profiles[config.profile].prefix) {
                 global.guilds.unset({ id: message.guild.id }, { prefix: null }).then(() => {
                     Util.reply(message, `The server prefix has been removed`);
                 });

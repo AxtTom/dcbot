@@ -36,8 +36,8 @@ class Handler {
         if (message.author.bot) return;
         
         let prefix: string;
-        if (message.content.startsWith(config.prefix)) {
-            prefix = config.prefix;
+        if (message.content.startsWith(config.profiles[config.profile].prefix)) {
+            prefix = config.profiles[config.profile].prefix;
         }
         else {
             const guild = await global.guilds.get({ id: message.guild.id });

@@ -10,6 +10,7 @@ interface Subcommand {
     name: string;
     aliases?: string[];
     execute(message: Discord.Message, args: string[]): any;
+    description: string;
 }
 
 interface Song  {
@@ -74,12 +75,7 @@ const play = async (message: Discord.Message) => {
 class MusicPlayer {
     public static connections: Map<string, Connection> = new Map<string, Connection>();
     private static pages = new Map<string, number>();
-    private static _queuePage(message: Discord.Message, page: number): string {
-        const connection = this.connections.get(message.guild.id);
-        if (!connection) return;
-
-        return `**Queue**\n${connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.url})`).slice(page * 10, page * 10 + 10).join('\n')}\nPage: ${page + 1}/${Math.ceil(connection.queue.length / 10)}`;
-    }
+    
     public static subcommands: Subcommand[] = [
         {
             name: 'play',
@@ -124,8 +120,9 @@ class MusicPlayer {
                 if (!connection.player || connection.player.state.status != Voice.AudioPlayerStatus.Playing) {
                     play(message);
                 }
-            }
-        },
+            },
+            description: 'Play a song.'
+        }, // play
         {
             name: 'skip',
             aliases: ['next'],
@@ -136,8 +133,9 @@ class MusicPlayer {
                 if (connection.loop) connection.queue.push(connection.queue.shift());
                 else connection.queue.shift();
                 if (connection.player) connection.player.stop(true);
-            }
-        },
+            },
+            description: 'Skip the current song.'
+        }, // skip
         {
             name: 'clear',
             execute: (message: Discord.Message, args: string[]) => {
@@ -147,8 +145,9 @@ class MusicPlayer {
                 connection.queue = [];
                 if (connection.player) connection.player.stop(true);
                 Util.reply(message, 'Queue cleared!');
-            }
-        },
+            },
+            description: 'Clear the queue.'
+        }, // clear
         {
             name: 'stop',
             aliases: ['pause'],
@@ -158,8 +157,9 @@ class MusicPlayer {
                 if (!connection) return;
                 if (connection.player) connection.player.pause();
                 Util.reply(message, 'Stopped!');
-            }
-        },
+            },
+            description: 'Stop the current song.'
+        }, // stop
         {
             name: 'resume',
             aliases: ['unpause'],
@@ -169,8 +169,9 @@ class MusicPlayer {
                 if (!connection) return;
                 if (connection.player) connection.player.unpause();
                 Util.reply(message, 'Resumed!');
-            }
-        },
+            },
+            description: 'Resume the current song.'
+        }, // resume
         {
             name: 'loop',
             execute: (message: Discord.Message, args: string[]) => {
@@ -179,8 +180,9 @@ class MusicPlayer {
                 if (!connection) return;
                 if (connection.player) connection.loop = !connection.loop;
                 Util.reply(message, `Looping is now ${connection.loop ? 'enabled' : 'disabled'}!`);
-            }
-        },
+            },
+            description: 'Toggle looping.'
+        }, // loop
         {
             name: 'leave',
             execute: (message: Discord.Message, args: string[]) => {
@@ -192,8 +194,9 @@ class MusicPlayer {
                 connection.connection.disconnect();
                 this.connections.delete(message.guild.id);
                 Util.reply(message, 'Disconnected!');
-            }
-        },
+            },
+            description: 'Leave the voice channel.'
+        }, // leave
         {
             name: 'join',
             execute: (message: Discord.Message, args: string[]) => {
@@ -240,8 +243,9 @@ class MusicPlayer {
                     if (connection.player) connection.connection.subscribe(connection.player);
                 }
                 Util.reply(message, 'Connected!');
-            }
-        },
+            },
+            description: 'Join the voice channel.'
+        }, // join
         {
             name: 'queue',
             aliases: ['list'],
@@ -282,8 +286,9 @@ class MusicPlayer {
 
                     Util.send(message.channel, queue);
                 }
-            }
-        },
+            },
+            description: 'Show the queue.'
+        }, // queue
         {
             name: 'remove',
             aliases: ['delete'],
@@ -308,8 +313,9 @@ class MusicPlayer {
                     const songs = connection.queue.splice(start, end - start + 1);
                     Util.reply(message, `Removed ${songs.length} songs from the queue!`);
                 }
-            }
-        },
+            },
+            description: 'Remove a song from the queue.'
+        }, // remove
         {
             name: 'shuffle',
             execute: (message: Discord.Message, args: string[]) => {
@@ -319,8 +325,9 @@ class MusicPlayer {
                 if (connection.queue.length <= 0) return Util.reply(message, 'There is nothing in the queue!', { color: config.colors.error });
                 connection.queue = Util.shuffle(connection.queue);
                 Util.reply(message, 'Shuffled the queue!');
-            }
-        },
+            },
+            description: 'Shuffle the queue.'
+        }, // shuffle
         {
             name: 'loopshuffleskip',
             aliases: ['lss'],
@@ -331,8 +338,9 @@ class MusicPlayer {
                 connection.loop = true;
                 this.subcommands.find(x => x.name == 'shuffle').execute(message, args);
                 this.subcommands.find(x => x.name == 'skip').execute(message, args);
-            }
-        },
+            },
+            description: 'Loop and shuffle the queue and skip the current song.'
+        }, // loopshuffleskip
         {
             name: 'serverprefix',
             execute: async (message: Discord.Message, args: string[]) => {
@@ -349,8 +357,9 @@ class MusicPlayer {
                         Util.reply(message, `The server musicprefix has been set to \`${args[0]}\``);
                     });
                 }
-            }
-        },
+            },
+            description: 'Set the server musicprefix.'
+        }, // serverprefix
         {
             name: 'savequeue',
             aliases: ['save'],
@@ -376,8 +385,9 @@ class MusicPlayer {
                         });
                     }
                 });
-            }
-        },
+            },
+            description: 'Save the queue.'
+        }, // savequeue
         {
             name: 'loadqueue',
             aliases: ['load'],
@@ -394,8 +404,9 @@ class MusicPlayer {
                     connection.queue = queue.queue;
                     Util.reply(message, 'Loaded the queue!');
                 });
-            }
-        },
+            },
+            description: 'Load a queue.'
+        }, // loadqueue
         {
             name: 'removequeue',
             execute: async (message: Discord.Message, args: string[]) => {
@@ -410,8 +421,9 @@ class MusicPlayer {
                     global.users.set({ id: message.author.id }, user);
                     Util.reply(message, 'Removed the queue!');
                 });
-            }
-        },
+            },
+            description: 'Remove a queue.'
+        }, // removequeue
         {
             name: 'listqueues',
             execute: async (message: Discord.Message, args: string[]) => {
@@ -420,8 +432,9 @@ class MusicPlayer {
                     const queues = user.queues.map(x => `\`${x.name}\``).join(', ');
                     Util.reply(message, `Your queues are: ${queues}`);
                 });
-            }
-        },
+            },
+            description: 'List your queues.'
+        }, // listqueues
         {
             name: 'addqueue',
             execute: async (message: Discord.Message, args: string[]) => {
@@ -437,7 +450,17 @@ class MusicPlayer {
                     connection.queue = connection.queue.concat(queue.queue);
                     Util.reply(message, 'Added the queue!');
                 });
-            }
+            },
+            description: 'Add a queue to the current queue.'
+        }, // addqueue
+        {
+            name: 'help',
+            execute: async (message: Discord.Message, args: string[]) => {
+                Util.reply(message, this.subcommands.map(x => `**${x.name}**: \`${x.description}\``).join('\n'), {
+                    title: '🎵 Music Help 🎵'
+                });
+            },
+            description: 'Help.'
         }
     ];
 
@@ -509,6 +532,12 @@ class MusicPlayer {
                 }
             }
         });
+    }
+    private static _queuePage(message: Discord.Message, page: number): string {
+        const connection = this.connections.get(message.guild.id);
+        if (!connection) return;
+
+        return `**Queue**\n${connection.queue.map((song, index) => `${index + 1}. [${song.title}](${song.url})`).slice(page * 10, page * 10 + 10).join('\n')}\nPage: ${page + 1}/${Math.ceil(connection.queue.length / 10)}`;
     }
 }
 

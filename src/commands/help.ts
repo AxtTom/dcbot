@@ -18,7 +18,7 @@ const command: Command = {
                 🔧 Administration
                 ${Handler.commands.filter(x => x.category === 'admin').map(x => `\`${x.name}\``).join(', ')}
                 `, {
-                title: `${config.name} Commands`,
+                title: `${config.profiles[config.profile].name} Commands`,
                 thumbnail: global.client.user.avatarURL()
             });
         }

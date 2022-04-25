@@ -31,6 +31,19 @@ class EasyMongo {
     public remove(filter: Mongo.Filter<Mongo.Document>) {
         return this.collection.deleteOne(filter);
     }
+    public has(filter: Mongo.Filter<Mongo.Document>): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            this.collection.findOne(filter, (err, doc) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve(doc !== null);
+                }
+            });
+        });
+        // return this.collection.findOne(filter).then(doc => doc != null); <- Don't know if this works
+    }
 }
 
 export {
