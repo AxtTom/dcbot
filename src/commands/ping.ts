@@ -6,7 +6,7 @@ import { Util } from '../util/util';
 const command: Command = {
     name: 'ping',
     category: 'misc',
-    execute(message, args) {
+    execute(message, { args }) {
         const start = message.createdTimestamp;
         Util.reply(message, "Pinging...").then(msg => {
             const end = msg.createdTimestamp;

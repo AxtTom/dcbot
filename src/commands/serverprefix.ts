@@ -7,7 +7,7 @@ const command: Command = {
     name: 'serverprefix',
     usage: '[prefix]',
     permissions: [ Discord.Permissions.FLAGS.ADMINISTRATOR ],
-    execute(message, args) {
+    execute(message, { args }) {
         if (args.length == 0) {
             global.guilds.get({ id: message.guild.id }).then(guild => {
                 if (guild && guild.prefix) Util.reply(message, `The server prefix is \`${guild.prefix}\``);

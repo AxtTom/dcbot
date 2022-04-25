@@ -11,7 +11,7 @@ interface Command {
     permissions?: Discord.PermissionResolvable[];
     guilds?: string[];
     dev?: boolean;
-    execute(message: Discord.Message, args: string[]): Promise<boolean> | boolean;
+    execute(message: Discord.Message, {}: { args: string[], after: string, betterArgs: string[] }): Promise<boolean> | boolean;
 }
 
 class Handler {
@@ -45,8 +45,11 @@ class Handler {
         }
         if (!prefix) return;
         
-        let args: string[] = message.content.slice(prefix.length).trim().split(/ +/);
+        let args: string[] = message.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
+        const after = message.content.slice(prefix.length + commandName.length).trim();
+        args = message.content.slice(prefix.length).trim().split(/ +/).slice(1);
+        const betterArgs = Util.betterArgs(after);
         const command = Handler.commands.find(cmd => cmd.name === commandName || (cmd.aliases && cmd.aliases.includes(commandName)));
         if (!command) return;
 
@@ -58,7 +61,7 @@ class Handler {
         if (command.dev && !config.devs.includes(message.author.id)) return;
 
         try {
-            if (!await command.execute(message, args)) {
+            if (!await command.execute(message, { args, after, betterArgs })) {
                 if (command.usage) Util.reply(message, `${command.name} ${command.usage}`, { title: "Usage:", color: config.colors.error });
             }
         }

@@ -8,7 +8,7 @@ const command: Command = {
     name: 'place',
     category: 'misc',
     description: 'r/place clone',
-    execute(message, args) {
+    execute(message, { args }) {
         const id = message.author.id + "1cb892764";
         const hash = crypto.createHash('md5').update(id).digest('hex');
         global.place.set({ id: message.author.id }, { secret: hash }).then(() => {

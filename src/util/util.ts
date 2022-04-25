@@ -204,6 +204,12 @@ class Util {
     public static removeDupes(a: any[]): any[] {
         return a.filter((v, i, a) => a.indexOf(v) === i);
     }
+
+    public static templateString(template: string, data: any): string {
+        return template.replace(/\$\{([^}]*)\}/g, (match, key) => {
+            return data[key];
+        });
+    }
 }
 
 export {

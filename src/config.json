@@ -1,5 +1,5 @@
 {
-    "profile": "release",
+    "profile": "debug",
     "profiles": {
         "release": {
             "name": "Alea",

@@ -8,7 +8,7 @@ const command: Command = {
     name: 'help',
     aliases: ['commands'],
     usage: '<command>',
-    execute(message, args) {
+    execute(message, { args }) {
         if (args.length <= 0) {
             Util.reply(message, 
                 `✨ Misc

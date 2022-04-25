@@ -12,6 +12,7 @@ import { MongoClient } from 'mongodb';
 import { Handler } from './command';
 import { EasyMongo } from './util/easymongo';
 import { MusicPlayer } from './musicplayer';
+import { Util } from './util/util';
 
 const mongo = new MongoClient('mongodb://localhost:27017');
 
@@ -57,6 +58,41 @@ async function main() {
         global.guilds.get({ id: message.guild.id }).then(guild => {
             if (guild && guild.musicprefix && message.content.startsWith(guild.musicprefix)) {
                 MusicPlayer.handle(message, message.content.slice(guild.musicprefix.length).trim().split(/ +/));
+            }
+        });
+    });
+
+    global.client.on('guildMemberAdd', member => {
+        global.guilds.get({ id: member.guild.id }).then(guild => {
+            if (guild && guild.autonick) {
+                member.setNickname(Util.templateString(guild.autonick, {
+                    name: member.user.username,
+                    tag: member.user.discriminator,
+                    id: member.user.id,
+                    time: new Date().toLocaleString()
+                }));
+            }
+            if (guild && guild.membercount) {
+                const channel = member.guild.channels.cache.find(c => c.id == guild.membercount.channel);
+                if (channel) {
+                    channel.setName(Util.templateString(guild.membercount.count, {
+                        count: member.guild.memberCount,
+                        time: new Date().toLocaleString() 
+                    }));
+                }
+            }
+        });
+    });
+    global.client.on('guildMemberRemove', member => {
+        global.guilds.get({ id: member.guild.id }).then(guild => {
+            if (guild && guild.membercount) {
+                const channel = member.guild.channels.cache.find(c => c.id == guild.membercount.channel);
+                if (channel) {
+                    channel.setName(Util.templateString(guild.membercount.count, {
+                        count: member.guild.memberCount,
+                        time: new Date().toLocaleString() 
+                    }));
+                }
             }
         });
     });

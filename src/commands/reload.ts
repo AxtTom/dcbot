@@ -7,7 +7,7 @@ const command: Command = {
     name: 'reload',
     dev: true,
     usage: '<command>',
-    execute(message, args) {
+    execute(message, { args }) {
         if (args.length != 1) return false; 
 
         try {
