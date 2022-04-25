@@ -55,8 +55,6 @@ async function main() {
         Handler.handleMessage(message);
 
         global.guilds.get({ id: message.guild.id }).then(guild => {
-            console.log(guild);
-            console.log(message.content.startsWith(guild.musicprefix));
             if (guild && guild.musicprefix && message.content.startsWith(guild.musicprefix)) {
                 MusicPlayer.handle(message, message.content.slice(guild.musicprefix.length).trim().split(/ +/));
             }

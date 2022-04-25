@@ -41,7 +41,7 @@ class Handler {
         }
         else {
             const guild = await global.guilds.get({ id: message.guild.id });
-            if (guild && guild.prefix) prefix = guild.prefix;
+            if (guild && guild.prefix && message.content.startsWith(guild.prefix)) prefix = guild.prefix;
         }
         if (!prefix) return;
         
